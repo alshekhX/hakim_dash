@@ -1,9 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.hakim_dash">
+
+    
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
    <application
         android:label="hakim_dash"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+         <meta-data android:name="com.google.android.geo.API_KEY"
+           android:value="AIzaSyD9G-I3_Kw5SQ7m36rncNHCs2uZORXBGxY"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hakim_dash/providers/doctorsProvider.dart';
+import 'package:hakim_dash/providers/homeCareProvider.dart';
+import 'package:hakim_dash/providers/hospitalProvider.dart';
 import 'package:hakim_dash/screens/AddDoctorSc.dart';
+import 'package:hakim_dash/screens/addHomeCare.dart';
+import 'package:hakim_dash/screens/addHospitalScreen.dart';
+import 'package:hakim_dash/screens/mapLocationPicker.dart';
+import 'package:hakim_dash/screens/vewsScreens/doctorsViewScreen.dart';
+import 'package:hakim_dash/screens/vewsScreens/hospitalsView.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 import 'consts/HakimColors.dart';
@@ -8,7 +17,24 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 
 void main() {
-  runApp(const MyApp());
+ runApp(MultiProvider(providers:  [
+    ChangeNotifierProvider(create: (context) => DoctorsProvider()),
+    ChangeNotifierProvider(create: (context) => HomeCareProvider()),
+    ChangeNotifierProvider(create: (context) => HospitalProvider()),
+    // ChangeNotifierProvider(
+    //   create: (context) => AuthProvider(),
+    // ),
+  ],
+  child:const MyApp(),)
+    
+    
+    
+    
+    
+    
+    
+    
+     );
 }
 
 class MyApp extends StatelessWidget {
@@ -41,7 +67,7 @@ class MyApp extends StatelessWidget {
          
           canvasColor: Colors.white,scaffoldBackgroundColor: Colors.white
                ),
-        home: const AddDoctor(),
+        home:  HospitalView(),
       );
     });
   }
