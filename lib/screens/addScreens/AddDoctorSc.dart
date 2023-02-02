@@ -13,7 +13,7 @@ import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
-import '../models/Doctor.dart';
+import '../../models/Doctor.dart';
 
 class AddDoctor extends StatefulWidget {
   const AddDoctor({super.key});
@@ -53,7 +53,7 @@ class _AddDoctorState extends State<AddDoctor> {
   Widget build(BuildContext context) {
     print(categoryValue);
     return Scaffold(
-                  appBar: ReusableWidgets.getAppBar('إضافة  مريض'),
+                  appBar: ReusableWidgets.getAppBar('إضافة  طبيب'),
 
       body: SafeArea(
         child: SingleChildScrollView(

@@ -5,8 +5,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hakim_dash/consts/HakimColors.dart';
 import 'package:hakim_dash/models/HomeCare.dart';
-import 'package:hakim_dash/models/Hospital.dart';
 import 'package:hakim_dash/providers/homeCareProvider.dart';
+import 'package:hakim_dash/screens/vewsScreens/homeCaresView.dart';
 import 'package:hakim_dash/screens/widget/hakimAppBAr.dart';
 import 'package:hakim_dash/screens/widget/textFormW.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,22 +15,39 @@ import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
-import '../providers/doctorsProvider.dart';
 
-class AddHomeCare extends StatefulWidget {
-  const AddHomeCare({super.key});
+
+class UpdateHomeCare extends StatefulWidget {
+  const UpdateHomeCare({super.key, required this.homeCare});
+    final HomeCare homeCare;
+
 
   @override
-  State<AddHomeCare> createState() => _AddHomeCareState();
+  State<UpdateHomeCare> createState() => _UpdateHomeCareState();
 }
 
-class _AddHomeCareState extends State<AddHomeCare> {
+class _UpdateHomeCareState extends State<UpdateHomeCare> {
   TextEditingController nameC = TextEditingController();
   TextEditingController locationC = TextEditingController();
   TextEditingController phoneC = TextEditingController();
   TextEditingController descriptionC = TextEditingController();
     TextEditingController phoneTwoC = TextEditingController();
 
+
+
+
+  @override
+  void initState() {
+    nameC.text = widget.homeCare.name!;
+        locationC.text = widget.homeCare.location!;
+
+    phoneC.text = widget.homeCare.phone.toString();
+    descriptionC.text = widget.homeCare.description!;
+
+
+    // TODO: implement initState
+    super.initState();
+  }
   List<File> _images = [];
   final picker = ImagePicker();
   // List<Image>? categoryValue;
@@ -195,7 +212,8 @@ class _AddHomeCareState extends State<AddHomeCare> {
                             name: nameC.text,
                             description: descriptionC.text,
                             phone: phones,
-                            location: locationC.text
+                            location: locationC.text,
+                            id: widget.homeCare.id
                          
                           );
 
@@ -205,7 +223,7 @@ class _AddHomeCareState extends State<AddHomeCare> {
                           String res = await Provider.of<HomeCareProvider>(
                                   context,
                                   listen: false).
-                             postHomeCare (_images, token, homeCare);
+                             updateHomeCare (_images, token, homeCare);
 
                           if (res == 'success') {
                             progressDialog!.dismiss();
@@ -216,7 +234,7 @@ class _AddHomeCareState extends State<AddHomeCare> {
                                       fontSize: 14.sp,
                                       color: Color(0xff707070),
                                       fontWeight: FontWeight.w600)),
-                              content: Text("تم إضافة الوحدة بنجاح",
+                              content: Text("تم تعديل الوحدة بنجاح",
                                   style: TextStyle(
                                       fontSize: 11.sp,
                                       color: Color(0xff707070),
@@ -226,17 +244,17 @@ class _AddHomeCareState extends State<AddHomeCare> {
                                     child: Text("إغلاق"),
                                     onPressed: () {
                                       Navigator.pop(context);
-                                      // Navigator.pushAndRemoveUntil<dynamic>(
-                                      //   context,
-                                      //   MaterialPageRoute<dynamic>(
-                                      //     builder: (BuildContext context) =>
-                                      //         BottomNavBAr(
-                                      //       index: 3,
-                                      //     ),
-                                      //   ),
-                                      //   (route) =>
-                                      //       false, //if you want to disable back feature set to false
-                                      // );
+
+                                      Navigator.pushAndRemoveUntil<dynamic>(
+                                        context,
+                                        MaterialPageRoute<dynamic>(
+                                          builder: (BuildContext context) =>
+                                              HomeCaresView(
+                                          ),
+                                        ),
+                                        (route) =>
+                                            false, //if you want to disable back feature set to false
+                                      );
                                     }),
                               ],
                             ).show(context);

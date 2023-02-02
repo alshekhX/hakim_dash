@@ -24,7 +24,7 @@ class AppInputTextField extends StatelessWidget {
             Text(title,
                 style: TextStyle(
                     fontSize: 14.sp,
-                    color: Color(0xff707070),
+                    color: const Color(0xff707070),
                     fontWeight: FontWeight.w500)),
             SizedBox(
               height: 5.sp,
@@ -43,7 +43,7 @@ class AppInputTextField extends StatelessWidget {
                 },
                 controller: controller,
                 decoration: new InputDecoration(
-                    focusedBorder: OutlineInputBorder(
+                    focusedBorder: const OutlineInputBorder(
                       borderSide:
                           BorderSide(color: Color(0xff0288D1), width: 1.0),
                     ),
@@ -53,7 +53,7 @@ class AppInputTextField extends StatelessWidget {
                     ),
                     hintStyle: TextStyle(
                         fontSize: 9.sp,
-                        color: Color(0xff707070).withOpacity(.8),
+                        color: const Color(0xff707070).withOpacity(.8),
                         fontWeight: FontWeight.w400)),
               ),
             ),

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hakim_dash/consts/networkConst.dart';
 import 'package:hakim_dash/models/Hospital.dart';
-import 'package:hakim_dash/screens/addHomeCare.dart';
-import 'package:hakim_dash/screens/addHospitalScreen.dart';
+import 'package:hakim_dash/screens/addScreens/addHospitalScreen.dart';
+import 'package:hakim_dash/screens/updateScreens/UpdateHospitalSc.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -48,17 +46,18 @@ class _HospitalViewState extends State<HospitalView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
- floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        
-        
-        
         backgroundColor: Colors.greenAccent.shade400,
         onPressed: () => {
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>AddHospitalScreen()))
-      },
-      child: Text('إضافة'),),      appBar: AppBar(
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const AddHospitalScreen()))
+        },
+        child: const Text('إضافة'),
+      ),
+      appBar: AppBar(
           toolbarHeight: 50.sp,
           backgroundColor: HakimColors.hakimPrimaryColor,
           title: const Text('المستشفيات')),
@@ -71,7 +70,7 @@ class _HospitalViewState extends State<HospitalView> {
                       builder: (context, hospitalProv, _) {
                     List<Widget> hospitalWidgets = [];
 
-                    for (int i = 0; i < hospitals!.length; i++) {
+                    for (int i = 0; i < hospitalProv.hospitals!.length; i++) {
                       hospitalWidgets.add(InkWell(
                         onTap: () {
                           // Navigator.push(
@@ -82,12 +81,8 @@ class _HospitalViewState extends State<HospitalView> {
                           //             )));
                         },
                         child: HospitalCard(
-                            name: hospitals![i].name!,
-                            image:
-                               NetworkConst().photoUrl +
-                                    hospitals![i].assets![0],
-                            location: hospitals![i].location!,
-                            description: hospitals![i].description!),
+                          hospital: hospitalProv.hospitals![i],
+                        ),
                       ));
                     }
 
@@ -98,7 +93,7 @@ class _HospitalViewState extends State<HospitalView> {
                 ],
               ),
             )
-          : Center(
+          : const Center(
               child: CircularProgressIndicator(),
             ),
     );
@@ -106,20 +101,15 @@ class _HospitalViewState extends State<HospitalView> {
 }
 
 class HospitalCard extends StatelessWidget {
-  final String name;
-  final String image;
-  final String location;
-  final String description;
+  final Hospital hospital;
   const HospitalCard({
     Key? key,
-    required this.name,
-    required this.image,
-    required this.location,
-    required this.description,
+    required this.hospital,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print(hospital.id);
     return Padding(
       padding: EdgeInsets.fromLTRB(5.w, 0, 5.w, 15.sp),
       child: Column(
@@ -130,7 +120,7 @@ class HospitalCard extends StatelessWidget {
                 height: 20.6.h,
                 width: 34.w,
                 child: Image.network(
-                  image,
+                  NetworkConst().photoUrl + hospital.assets![0],
                   fit: BoxFit.cover,
                 ),
               ),
@@ -146,10 +136,10 @@ class HospitalCard extends StatelessWidget {
                       Container(
                         height: 5.h,
                         child: Text(
-                          name,
+                          hospital.name!,
                           style: TextStyle(
                               fontSize: 14.sp,
-                              color: Color(0xff707070),
+                              color: const Color(0xff707070),
                               fontWeight: FontWeight.w700),
                         ),
                       ),
@@ -159,13 +149,13 @@ class HospitalCard extends StatelessWidget {
                       Container(
                         height: 10.h,
                         child: Text(
-                          description,
+                          hospital.description!,
                           overflow: TextOverflow.fade,
                           style: TextStyle(
-                              fontSize: 10.sp, color: Color(0xff8E8B8B)),
+                              fontSize: 10.sp, color: const Color(0xff8E8B8B)),
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       Row(
                         children: [
                           Align(
@@ -181,9 +171,10 @@ class HospitalCard extends StatelessWidget {
                           Align(
                             alignment: Alignment.bottomCenter,
                             child: Text(
-                              location,
+                              hospital.location!,
                               style: TextStyle(
-                                  fontSize: 12.sp, color: Color(0xff8E8B8B)),
+                                  fontSize: 12.sp,
+                                  color: const Color(0xff8E8B8B)),
                             ),
                           ),
                         ],
@@ -197,14 +188,22 @@ class HospitalCard extends StatelessWidget {
           ),
           Row(
             children: [
-              Spacer(),
+              SizedBox(
+                height: 5.w,
+              ),
               Container(
-                  height: 4.h,
-                  width: 50.w,
+                  height: 5.h,
+                  width: 40.w,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  UpdateHospital(hospital: hospital)));
+                    },
                     child: Text(
-                      "تواصل",
+                      "تعديل",
                       style: TextStyle(fontSize: 11.sp),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -214,13 +213,91 @@ class HospitalCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         )),
                   )),
+              const Spacer(),
+              Container(
+                  height: 5.h,
+                  width: 40.w,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      print('object');
+
+                      await showConformationDialog(context, hospital.id!);
+                    },
+                    child: Text(
+                      "مسح",
+                      style: TextStyle(fontSize: 11.sp),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        )),
+                  )),
             ],
           ),
           SizedBox(
-            height: 2.5.h,
+            height: 5.h,
           )
         ],
       ),
     );
   }
+
+
+
+  showConformationDialog(BuildContext context, String id) {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: const Text("إلغاء"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+    Widget continueButton = TextButton(
+        child: const Text("نعم",style: TextStyle(color: Colors.red),),
+        onPressed: () async {
+          Navigator.pop(context);
+
+          String res =
+              await Provider.of<HospitalProvider>(context, listen: false)
+                  .deleteHospital(id, NetworkConst().token);
+
+          if (res == 'success') {
+            await showDialog(
+                context: context,
+                builder: (context) => const AlertDialog(
+                      title: Text("نججت العملية"),
+                      content: Text("تم المسح بنجاح"),
+                      actions: [],
+                    ));
+          } else {
+            await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                      title: const Text("فشلت العملية"),
+                      content: Text(res),
+                    ));
+          }
+        });
+
+AlertDialog alert = AlertDialog(
+      title: const Text("تأكيد"),
+      content: const Text("  هل أنت متأكد من أنك تريد مسح المحتوى؟"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+
+  }
+
 }
