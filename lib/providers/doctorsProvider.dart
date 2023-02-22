@@ -23,7 +23,6 @@ class DoctorsProvider with ChangeNotifier {
 
       doctors = map.map((i) => Doctor.fromJson(i)).toList().cast<Doctor>();
 
-      print(doctors![0].username);
       notifyListeners();
       return 'success';
     } else {
@@ -48,22 +47,32 @@ class DoctorsProvider with ChangeNotifier {
 
     //   return await MultipartFile.fromFile(e.path, filename: fileName);
     // }).toList();
-
-    FormData formData = FormData.fromMap({
+    print({
       "photo": docImage,
-      'username': doctor.username,
       "email": doctor.email,
       "phone": doctor.phone,
       "description": doctor.description,
       "category": doctor.category,
-      "firstName":doctor.firstName,
-      "lastName":doctor.lastName
+      "firstname": doctor.firstName,
+      "lastname": doctor.lastName
+    });
+
+    FormData formData = FormData.fromMap({
+      "photoFile": docImage,
+      "email": doctor.email,
+      "phone": doctor.phone,
+      "description": doctor.description,
+      "category": doctor.category,
+      "firstname": doctor.firstName,
+      "lastname": doctor.lastName,
+      "rank":doctor.rank
     });
 
     try {
       Response response = await dio.post("/api/v1/doctor", data: formData);
       print(response.data);
       if (response.statusCode == 201) {
+        getDoctor(1);
         return 'success';
       } else if (response.statusCode! == 401) {
         return 'd';
@@ -77,4 +86,85 @@ class DoctorsProvider with ChangeNotifier {
       return 'Slow internet, Please Try again';
     }
   }
+
+  deleteDoctor(String id, String token) async {
+    Dio dio = Dio(options);
+
+    try {
+      dio.options.headers["authorization"] = 'Bearer $token';
+
+      // Response response = await dio.get("/api/v1/articles", queryParameters: {
+      //   'createdAt': {"$gte": "$dayBefore", "\$$lte": "$dayEnd"}
+      // });
+
+      Response response = await dio.delete(
+        "/api/v1/doctor/$id",
+      );
+
+      print(response.data);
+      if (response.statusCode == 200) {
+        await getDoctor(1);
+        // DateTime
+        return 'success';
+      } else {
+        String error = response.data.toString();
+        return error;
+      }
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+
+
+
+
+
+   updateDoc(File image, String token, Doctor doctor) async {
+    final Dio dio = Dio(options);
+    dio.options.headers["authorization"] = 'Bearer $token';
+
+    String fileName = image.path.split('/').last;
+
+    final docImage =
+        await MultipartFile.fromFile(image.path, filename: fileName);
+
+    // await file.map((e) async {
+    //   String fileName = e.path.split('/').last;
+
+    //   return await MultipartFile.fromFile(e.path, filename: fileName);
+  
+
+    FormData formData = FormData.fromMap({
+      "photoFile": docImage,
+      "email": doctor.email,
+      "phone": doctor.phone,
+      "description": doctor.description,
+      "category": doctor.category,
+      "firstname": doctor.firstName,
+      "lastname": doctor.lastName,
+            "rank":doctor.rank
+
+    });
+
+    try {
+      Response response = await dio.put("/api/v1/doctor/${doctor.id}", data: formData);
+      print(response.data);
+      if (response.statusCode == 200) {
+        getDoctor(1);
+        return 'success';
+      } else if (response.statusCode! == 401) {
+        return 'd';
+      } else if (response.statusCode! >= 500) {
+        return 's';
+      } else {
+        return response.data.toString();
+      }
+    } catch (e) {
+      print(e);
+      return 'Slow internet, Please Try again';
+    }
+  }
+
+  
 }

@@ -8,6 +8,8 @@ import 'package:sizer/sizer.dart';
 
 import '../../consts/HakimColors.dart';
 import '../../providers/hospitalProvider.dart';
+import '../widget/apppBar.dart';
+import '../widget/hakimLoadingIndicator.dart';
 
 class HospitalView extends StatefulWidget {
   const HospitalView({super.key});
@@ -57,10 +59,7 @@ class _HospitalViewState extends State<HospitalView> {
         },
         child: const Text('إضافة'),
       ),
-      appBar: AppBar(
-          toolbarHeight: 50.sp,
-          backgroundColor: HakimColors.hakimPrimaryColor,
-          title: const Text('المستشفيات')),
+      appBar:ReusableWidgets.getAppBar('المستشفى', true,context),
       body: hospitals != null
           ? SingleChildScrollView(
               child: Column(
@@ -93,9 +92,7 @@ class _HospitalViewState extends State<HospitalView> {
                 ],
               ),
             )
-          : const Center(
-              child: CircularProgressIndicator(),
-            ),
+          : const HaLoadingIndicator(),
     );
   }
 }
@@ -120,7 +117,7 @@ class HospitalCard extends StatelessWidget {
                 height: 20.6.h,
                 width: 34.w,
                 child: Image.network(
-                  NetworkConst().photoUrl + hospital.assets![0],
+               hospital.assets!.isEmpty?"":    NetworkConst().photoUrl + hospital.assets![0],
                   fit: BoxFit.cover,
                 ),
               ),
@@ -173,7 +170,7 @@ class HospitalCard extends StatelessWidget {
                             child: Text(
                               hospital.location!,
                               style: TextStyle(
-                                  fontSize: 12.sp,
+                                  fontSize: 10.sp,
                                   color: const Color(0xff8E8B8B)),
                             ),
                           ),

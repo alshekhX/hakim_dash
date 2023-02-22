@@ -2,9 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hakim_dash/consts/HakimColors.dart';
+import 'package:hakim_dash/models/Ad.dart';
 import 'package:hakim_dash/models/HomeCare.dart';
+import 'package:hakim_dash/providers/adsProvider.dart';
 import 'package:hakim_dash/providers/homeCareProvider.dart';
+import 'package:hakim_dash/screens/vewsScreens/adsView.dart';
 import 'package:hakim_dash/screens/vewsScreens/homeCaresView.dart';
+import 'package:hakim_dash/screens/widget/chooseTextField.dart';
 import 'package:hakim_dash/screens/widget/hakimLoadingIndicator.dart';
 import 'package:hakim_dash/screens/widget/textFormW.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,43 +19,40 @@ import 'package:sizer/sizer.dart';
 
 import '../widget/apppBar.dart';
 
-class UpdateHomeCare extends StatefulWidget {
-  const UpdateHomeCare({super.key, required this.homeCare});
-  final HomeCare homeCare;
+class AddAd extends StatefulWidget {
+  const AddAd({super.key});
 
   @override
-  State<UpdateHomeCare> createState() => _UpdateHomeCareState();
+  State<AddAd> createState() => _AddAdState();
 }
 
-class _UpdateHomeCareState extends State<UpdateHomeCare> {
-  TextEditingController nameC = TextEditingController();
-  TextEditingController locationC = TextEditingController();
-  TextEditingController phoneC = TextEditingController();
+class _AddAdState extends State<AddAd> {
+  TextEditingController title = TextEditingController();
+  TextEditingController type = TextEditingController();
+  TextEditingController duration = TextEditingController();
   TextEditingController descriptionC = TextEditingController();
-  TextEditingController phoneTwoC = TextEditingController();
 
-  @override
-  void initState() {
-    nameC.text = widget.homeCare.name!;
-    locationC.text = widget.homeCare.location!;
-
-    phoneC.text = widget.homeCare.phone.toString().replaceAll('[', '').replaceAll(']', '');
-    descriptionC.text = widget.homeCare.description!;
-
-    // TODO: implement initState
-    super.initState();
-  }
-
-  List<File> _images = [];
+  File? _image;
   final picker = ImagePicker();
   // List<Image>? categoryValue;
 
   final formGlobalKey = GlobalKey<FormState>();
 
+  List<String> adType = [
+    "video",
+    "image",
+  ];
+
+  List<String> adDuration = [
+    '7',
+    '30',
+    '90',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ReusableWidgets.getAppBar('إضافة وحدة منزلية', false, context),
+      appBar: ReusableWidgets.getAppBar('إضافة إعلان', false, context),
       body: SafeArea(
         child: Form(
           key: formGlobalKey,
@@ -62,15 +63,18 @@ class _UpdateHomeCareState extends State<UpdateHomeCare> {
                 SizedBox(
                   height: 25.sp,
                 ),
-
-                Center(
+                    Center(
                   child: Container(
                     width: 80.w,
                     height: 42.5.w,
-                    child: _images.isEmpty
+                    child: _image == null
                         ? InkWell(
                             onTap: () async {
-                              await _multipleImgFromGallery();
+                              if (type.text.isEmpty) {
+                                print('choose ad type');
+                              } else {
+                                await imgFromGallery();
+                              }
                             },
                             child: Card(
                               elevation: 3.sp,
@@ -91,7 +95,7 @@ class _UpdateHomeCareState extends State<UpdateHomeCare> {
                                     SizedBox(
                                       height: 1.h,
                                     ),
-                                    Text('إضغط لتحميل الصور',
+                                    Text('إضغط لتحميل صورة الاعلان',
                                         style: TextStyle(
                                             fontSize: 11.sp,
                                             color: Color(0xffB5B5B5),
@@ -103,70 +107,39 @@ class _UpdateHomeCareState extends State<UpdateHomeCare> {
                           )
                         : InkWell(
                             onTap: () async {
-                              await _multipleImgFromGallery();
+                              await imgFromGallery();
                             },
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: _images
-                                  .map((e) => Padding(
-                                        padding: const EdgeInsets.all(5.0),
-                                        child: Image.file(e),
-                                      ))
-                                  .toList()
+                            child: Container(
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Image.file(_image!),
+                              )
                               // Image.file(_images[0]),
                               ,
                             )),
                   ),
                 ),
+         
                 SizedBox(
                   height: 25.sp,
                 ),
+                ChooseTextFieldW(
+                    list: adType, title: 'نوع الإعلان', valueX: type),
+
+
 
                 AppInputTextField(
-                  controller: nameC,
-                  title: 'إسم العيادة المنزلية',
+                  controller: title,
+                  title: 'عنوان الأعلان',
                 ),
-                AppInputTextField(
-                  controller: phoneC,
-                  title: "رقم الهاتف",
-                ),
-
                 AppInputTextField(
                   controller: descriptionC,
-                  title: "وصف العيادة المنزلية",
+                  title: " وصف الأعلان",
                 ),
+                  ChooseTextFieldW(
+                    list: adDuration, title: 'فترة الإعلان', valueX: duration),
+                
 
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 7.5.w,
-                    ),
-                    Container(
-                      width: 55.w,
-                      child: AppInputTextField(
-                        controller: locationC,
-                        title: "وصف الموقع",
-                      ),
-                    ),
-                    Spacer(),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: Text(
-                        'حدد الموقع',
-                        style: TextStyle(
-                            fontSize: 14.sp,
-                            color: HakimColors.MainfontColor,
-                            fontWeight: FontWeight.w400),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: HakimColors.blueGreySurr,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 5.w,
-                    ),
-                  ],
-                ),
                 SizedBox(
                   height: 30.sp,
                 ),
@@ -174,7 +147,7 @@ class _UpdateHomeCareState extends State<UpdateHomeCare> {
                   width: 60.w,
                   height: 7.h,
                   child: ElevatedButton(
-                      child: Text('إحفظ  بيانات الوحدة',
+                      child: Text('إحفظ  بيانات الإعلان',
                           style: TextStyle(
                               fontSize: 14.sp,
                               color: Colors.white,
@@ -193,26 +166,23 @@ class _UpdateHomeCareState extends State<UpdateHomeCare> {
                                   blur: 10,
                                   loadingWidget: HaLoadingIndicator());
 
-                                               List<String> phones = phoneC.text.split(',');
-
-                          HomeCare homeCare = HomeCare(
-                              name: nameC.text,
-                              description: descriptionC.text,
-                              phone: phones,
-                              location: locationC.text,
-                              id: widget.homeCare.id);
+                          Ad ad = Ad(
+                            title: title.text,
+                            description: descriptionC.text,
+                            duration:  int.parse(duration.text),
+                            type: type.text
+                          );
 
                           progressDialog.show();
                           String token =
-                              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2M2UzYmNhOGIwOTJmYmNiNTAzY2ZiNjkiLCJpYXQiOjE2NzU4Njk1MzYsImV4cCI6MTcwNjk3MzUzNn0.KkhuvYQPscSQlcjCLByCEgf8gVYFOWV5GrgZoohthbM";
+                              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2M2UzYmNhOGIwOTJmYmNiNTAzY2ZiNjkiLCJpYXQiOjE2NzU4NjkzNTIsImV4cCI6MTcwNjk3MzM1Mn0.OcO8YS2DOFVDQxni14zUQibjDdNncAYOca5DAGcMx0U";
 
-                          String res = await Provider.of<HomeCareProvider>(
-                                  context,
+                          String res = await Provider.of<AdsProvider>(context,
                                   listen: false)
-                              .updateHomeCare(_images, token, homeCare);
+                              .postAD(_image, token, ad);
 
                           if (res == 'success') {
-                            progressDialog!.dismiss();
+                            progressDialog.dismiss();
                             await NAlertDialog(
                               dialogStyle: DialogStyle(titleDivider: true),
                               title: Text('نجاح',
@@ -220,7 +190,7 @@ class _UpdateHomeCareState extends State<UpdateHomeCare> {
                                       fontSize: 14.sp,
                                       color: Color(0xff707070),
                                       fontWeight: FontWeight.w600)),
-                              content: Text("تم تعديل الوحدة بنجاح",
+                              content: Text("تم إضافة الأعلان بنجاح",
                                   style: TextStyle(
                                       fontSize: 11.sp,
                                       color: Color(0xff707070),
@@ -230,12 +200,11 @@ class _UpdateHomeCareState extends State<UpdateHomeCare> {
                                     child: Text("إغلاق"),
                                     onPressed: () {
                                       Navigator.pop(context);
-
                                       Navigator.pushAndRemoveUntil<dynamic>(
                                         context,
                                         MaterialPageRoute<dynamic>(
                                           builder: (BuildContext context) =>
-                                              HomeCaresView(),
+                                              AdsView(),
                                         ),
                                         (route) =>
                                             false, //if you want to disable back feature set to false
@@ -305,40 +274,37 @@ class _UpdateHomeCareState extends State<UpdateHomeCare> {
     );
   }
 
-  Future _multipleImgFromGallery() async {
+  Future imgFromGallery() async {
     // ProgressDialog pd = ProgressDialog(context: context);
-    _images.clear();
+    _image == null;
 
-    final List<XFile>? images = await picker.pickMultiImage();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-    if (images != null) {
-      if (images.length < 1) {
-        await NAlertDialog(
-          dialogStyle: DialogStyle(titleDivider: true),
-          title: Text('يجب عليك تحميل صورة على الاقل',
-              style: TextStyle(
-                  fontSize: 14.sp,
-                  color: Color(0xff707070),
-                  fontWeight: FontWeight.w600)),
-          content: Text("خطأ",
-              style: TextStyle(
-                  fontSize: 11.sp,
-                  color: Color(0xff707070),
-                  fontWeight: FontWeight.w600)),
-          actions: <Widget>[
-            TextButton(
-                child: Text("موافق"),
-                onPressed: () {
-                  Navigator.pop(context);
-                }),
-          ],
-        ).show(context);
-      } else {
-        for (int i = 0; i < images.length; i++) {
-          _images.add(File(images[i].path));
-        }
-        setState(() {});
-      }
-    } else {}
+    if (image == null) {
+      await NAlertDialog(
+        dialogStyle: DialogStyle(titleDivider: true),
+        title: Text('يجب عليك تحميل صورة  للإعلان',
+            style: TextStyle(
+                fontSize: 14.sp,
+                color: Color(0xff707070),
+                fontWeight: FontWeight.w600)),
+        content: Text("خطأ",
+            style: TextStyle(
+                fontSize: 11.sp,
+                color: Color(0xff707070),
+                fontWeight: FontWeight.w600)),
+        actions: <Widget>[
+          TextButton(
+              child: Text("موافق"),
+              onPressed: () {
+                Navigator.pop(context);
+              }),
+        ],
+      ).show(context);
+    } else {
+      _image = File(image.path);
+
+      setState(() {});
+    }
   }
 }

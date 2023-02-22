@@ -7,13 +7,15 @@ import 'package:hakim_dash/consts/HakimColors.dart';
 import 'package:hakim_dash/models/Hospital.dart';
 import 'package:hakim_dash/providers/hospitalProvider.dart';
 import 'package:hakim_dash/screens/vewsScreens/hospitalsView.dart';
-import 'package:hakim_dash/screens/widget/hakimAppBAr.dart';
 import 'package:hakim_dash/screens/widget/textFormW.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+
+import '../widget/apppBar.dart';
+import '../widget/hakimLoadingIndicator.dart';
 
 class UpdateHospital extends StatefulWidget {
   const UpdateHospital({super.key, required this.hospital});
@@ -37,7 +39,7 @@ class _UpdateHospitalState extends State<UpdateHospital> {
     nameC.text = widget.hospital.name!;
         locationC.text = widget.hospital.location!;
 
-    phoneC.text = widget.hospital.phone.toString();
+    phoneC.text = widget.hospital.phone.toString().replaceAll('[', '').replaceAll(']', '');
     descriptionC.text = widget.hospital.description!;
 
 
@@ -52,7 +54,7 @@ class _UpdateHospitalState extends State<UpdateHospital> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ReusableWidgets.getAppBar('إضافة مستشفى'),
+      appBar: ReusableWidgets.getAppBar('إضافة مستشفى',false,context),
       body: SafeArea(
         child: Form(
           key: formGlobalKey,
@@ -185,13 +187,9 @@ class _UpdateHospitalState extends State<UpdateHospital> {
                         if (formGlobalKey.currentState!.validate()) {
                           formGlobalKey.currentState!.save();
                           CustomProgressDialog progressDialog =
-                              CustomProgressDialog(context, blur: 10);
+                              CustomProgressDialog(context, blur: 10,loadingWidget: HaLoadingIndicator());
+                          List<String> phones = phoneC.text.split(',');
 
-                          List<String> phones = [];
-                          phones.add(phoneC.text);
-                          if (phoneTwoC.text.isNotEmpty) {
-                            phones.add(phoneTwoC.text);
-                          }
 
                           Hospital hospital = Hospital(
                               name: nameC.text,
@@ -202,7 +200,7 @@ class _UpdateHospitalState extends State<UpdateHospital> {
 
                           progressDialog.show();
                           String token =
-                              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MzliMGJhMzk3OGVhNWExMDIxNzhkM2EiLCJpYXQiOjE2NzExMDU2ODgsImV4cCI6MTcwMjIwOTY4OH0.-CVzFpdYqYTtzCXnQDRMQGiVyg2d--ae-AuSN5USHwo';
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2M2UzYmNhOGIwOTJmYmNiNTAzY2ZiNjkiLCJpYXQiOjE2NzU4Njk1MzYsImV4cCI6MTcwNjk3MzUzNn0.KkhuvYQPscSQlcjCLByCEgf8gVYFOWV5GrgZoohthbM";
 
                           String res = await Provider.of<HospitalProvider>(
                                   context,

@@ -1,18 +1,21 @@
-
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hakim_dash/consts/HakimColors.dart';
 import 'package:hakim_dash/models/Hospital.dart';
 import 'package:hakim_dash/providers/hospitalProvider.dart';
-import 'package:hakim_dash/screens/widget/hakimAppBAr.dart';
+import 'package:hakim_dash/screens/addScreens/map.dart';
+import 'package:hakim_dash/screens/vewsScreens/hospitalsView.dart';
+import 'package:hakim_dash/screens/widget/hakimLoadingIndicator.dart';
 import 'package:hakim_dash/screens/widget/textFormW.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+
+import '../widget/apppBar.dart';
 
 class AddHospitalScreen extends StatefulWidget {
   const AddHospitalScreen({super.key});
@@ -22,96 +25,99 @@ class AddHospitalScreen extends StatefulWidget {
 }
 
 class _AddHospitalScreenState extends State<AddHospitalScreen> {
-   TextEditingController nameC = TextEditingController();
+  TextEditingController nameC = TextEditingController();
   TextEditingController locationC = TextEditingController();
   TextEditingController phoneC = TextEditingController();
   TextEditingController descriptionC = TextEditingController();
   List<File> _images = [];
-      TextEditingController phoneTwoC = TextEditingController();
+  TextEditingController phoneTwoC = TextEditingController();
 
   final picker = ImagePicker();
   // List<Image>? categoryValue;
   final formGlobalKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    Provider.of<HospitalProvider>(context, listen: false)
+        .determinePosition(null);
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ReusableWidgets.getAppBar('إضافة مستشفى'),
+      appBar: ReusableWidgets.getAppBar('إضافة مستشفى', false, context),
       body: SafeArea(
-        child: Form(                      key: formGlobalKey,
+        child: Form(
+          key: formGlobalKey,
           child: SingleChildScrollView(
-
-
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
                   height: 25.sp,
                 ),
-        
-                 Center(
-                        child: Container(
-                          width: 80.w,
-                          height: 42.5.w,
-                          child: _images.isEmpty
-                              ? InkWell(
-                                  onTap: () async {
-                                    await _multipleImgFromGallery();
-                              
-                                  },
-                                  child: Card(
-                                    elevation: 3.sp,
-                                    shadowColor: Colors.grey.withOpacity(.6),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
+
+                Center(
+                  child: Container(
+                    width: 80.w,
+                    height: 42.5.w,
+                    child: _images.isEmpty
+                        ? InkWell(
+                            onTap: () async {
+                              await _multipleImgFromGallery();
+                            },
+                            child: Card(
+                              elevation: 3.sp,
+                              shadowColor: Colors.grey.withOpacity(.6),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(5.sp),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Ionicons.add_circle_outline,
+                                      size: 55.sp,
+                                      color: HakimColors.hakimPrimaryColor,
                                     ),
-                                    child: Padding(
-                                      padding: EdgeInsets.all(5.sp),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Ionicons.add_circle_outline,
-                                            size: 55.sp,
-                                            color:HakimColors.hakimPrimaryColor,
-                                          ),
-                                          SizedBox(
-                                            height: 1.h,
-                                          ),
-                                          Text(
-                                            'إضغط لتحميل الصور',
-                                              style: TextStyle(
-                                                  fontSize: 11.sp,
-                                                  color: Color(0xffB5B5B5),
-                                                  fontWeight: FontWeight.w300)),
-                                        ],
-                                      ),
+                                    SizedBox(
+                                      height: 1.h,
                                     ),
-                                  ),
-                                )
-                              : InkWell(
-                                  onTap: () async {
-                                    await _multipleImgFromGallery();
-                                  },
-                                  child: ListView(
-                                    scrollDirection: Axis.horizontal,
-                                    children: _images
-                                        .map((e) => Padding(
-                                              padding: const EdgeInsets.all(5.0),
-                                              child: Image.file(e),
-                                            ))
-                                        .toList()
-                                    // Image.file(_images[0]),
-                                    ,
-                                  )),
-                        ),
-                      ),
+                                    Text('إضغط لتحميل الصور',
+                                        style: TextStyle(
+                                            fontSize: 11.sp,
+                                            color: Color(0xffB5B5B5),
+                                            fontWeight: FontWeight.w300)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        : InkWell(
+                            onTap: () async {
+                              await _multipleImgFromGallery();
+                            },
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: _images
+                                  .map((e) => Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Image.file(e),
+                                      ))
+                                  .toList()
+                              // Image.file(_images[0]),
+                              ,
+                            )),
+                  ),
+                ),
                 SizedBox(
                   height: 25.sp,
                 ),
-        
+
                 AppInputTextField(
                   controller: nameC,
                   title: 'إسم المستشفى',
@@ -120,63 +126,89 @@ class _AddHospitalScreenState extends State<AddHospitalScreen> {
                   controller: phoneC,
                   title: "رقم الهاتف",
                 ),
-                
+
                 AppInputTextField(
                   controller: descriptionC,
                   title: "وصف المستشفى",
                 ),
-        
+
                 Row(
                   children: [
-                    SizedBox(width: 7.5.w,),
-                     Container(
+                    SizedBox(
+                      width: 7.5.w,
+                    ),
+                    Container(
                       width: 55.w,
-                       child: AppInputTextField(
+                      child: AppInputTextField(
                         controller: locationC,
                         title: "وصف الموقع",
+                      ),
                     ),
-                    
-                     ),
-                     Spacer(),
-                     
-                
-                    ElevatedButton(onPressed: (){}, child: Text('حدد الموقع',style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: HakimColors.MainfontColor,
-                                  fontWeight: FontWeight.w400),),
-                       style: ElevatedButton.styleFrom(
-                            backgroundColor:HakimColors.blueGreySurr,
-                           
-                          ),)
-                
-                ,SizedBox(width: 5.w,),
-                    
+                    Spacer(),
+                    Consumer<HospitalProvider>(
+                        builder: ((context, hospitalProvider, _) {
+                      return ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => hakimMap()));
+                        },
+                        child: Text(
+                          hospitalProvider.hospitalatLng == null
+                              ? 'حدد الموقع'
+                              : "تم التحديد",
+                          style: TextStyle(
+                              fontSize: 14.sp,
+                              color: hospitalProvider.hospitalatLng == null
+                                  ? HakimColors.MainfontColor
+                                  : Colors.white,
+                              fontWeight: FontWeight.w400),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              hospitalProvider.hospitalatLng == null
+                                  ? HakimColors.blueGreySurr
+                                  : Colors.green,
+                        ),
+                      );
+                    })),
+                    SizedBox(
+                      width: 5.w,
+                    ),
                   ],
                 ),
-                SizedBox(height: 30.sp,),
-                 Container(
-                        width: 60.w,
-                        height: 7.h,
-                        child: ElevatedButton(
-                          child: Text('إحفظ  بيانات المستشفى',
-                              style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:HakimColors.hakimPrimaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                       onPressed: () async  {
+                SizedBox(
+                  height: 30.sp,
+                ),
 
-                        
+                Container(
+                  width: 60.w,
+                  height: 7.h,
+                  child: ElevatedButton(
+                      child: Text('إحفظ  بيانات المستشفى',
+                          style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w400)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: HakimColors.hakimPrimaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      onPressed: () async {
                         if (formGlobalKey.currentState!.validate()) {
                           formGlobalKey.currentState!.save();
                           CustomProgressDialog progressDialog =
-                              CustomProgressDialog(context, blur: 10);
+                              CustomProgressDialog(context,
+                                  blur: 10,
+                                  loadingWidget: HaLoadingIndicator());
 
+                          LatLng position = Provider.of<HospitalProvider>(
+                                  context,
+                                  listen: false)
+                              .hospitalatLng!;
                           List<String> phones = [];
                           phones.add(phoneC.text);
                           if (phoneTwoC.text.isNotEmpty) {
@@ -184,20 +216,18 @@ class _AddHospitalScreenState extends State<AddHospitalScreen> {
                           }
 
                           Hospital hospital = Hospital(
-                            name: nameC.text,
-                            description: descriptionC.text,
-                            phone: phones,
-                            location: locationC.text
-                         
-                          );
+                              name: nameC.text,
+                              description: descriptionC.text,
+                              phone: phones,
+                              location: locationC.text);
 
                           progressDialog.show();
-                          String token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MzliMGJhMzk3OGVhNWExMDIxNzhkM2EiLCJpYXQiOjE2NzExMDU2ODgsImV4cCI6MTcwMjIwOTY4OH0.-CVzFpdYqYTtzCXnQDRMQGiVyg2d--ae-AuSN5USHwo';
-
+                          String token =
+                              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2M2UzYmNhOGIwOTJmYmNiNTAzY2ZiNjkiLCJpYXQiOjE2NzU4Njk1MzYsImV4cCI6MTcwNjk3MzUzNn0.KkhuvYQPscSQlcjCLByCEgf8gVYFOWV5GrgZoohthbM";
                           String res = await Provider.of<HospitalProvider>(
                                   context,
-                                  listen: false).
-                             postHospital(_images, token, hospital);
+                                  listen: false)
+                              .postHospital(_images, token, hospital, position);
 
                           if (res == 'success') {
                             progressDialog!.dismiss();
@@ -218,32 +248,28 @@ class _AddHospitalScreenState extends State<AddHospitalScreen> {
                                     child: Text("إغلاق"),
                                     onPressed: () {
                                       Navigator.pop(context);
-                                      // Navigator.pushAndRemoveUntil<dynamic>(
-                                      //   context,
-                                      //   MaterialPageRoute<dynamic>(
-                                      //     builder: (BuildContext context) =>
-                                      //         BottomNavBAr(
-                                      //       index: 3,
-                                      //     ),
-                                      //   ),
-                                      //   (route) =>
-                                      //       false, //if you want to disable back feature set to false
-                                      // );
+                                      Navigator.pushAndRemoveUntil<dynamic>(
+                                        context,
+                                        MaterialPageRoute<dynamic>(
+                                          builder: (BuildContext context) =>
+                                              HospitalView(),
+                                        ),
+                                        (route) =>
+                                            false, //if you want to disable back feature set to false
+                                      );
                                     }),
                               ],
                             ).show(context);
-                          }  else if (res == 's') {
+                          } else if (res == 's') {
                             progressDialog.dismiss();
                             await NAlertDialog(
-                              title: Text(
-                                "خطأ",
+                              title: Text("خطأ",
                                   style: TextStyle(
                                       fontSize: 14.sp,
                                       color: Color(0xff707070),
                                       fontWeight: FontWeight.w600)),
                               dialogStyle: DialogStyle(titleDivider: true),
-                              content: Text(
-                                "خطأ في الشبكة",
+                              content: Text("خطأ في الشبكة",
                                   style: TextStyle(
                                       fontSize: 14.sp,
                                       color: Color(0xff707070),
@@ -260,15 +286,13 @@ class _AddHospitalScreenState extends State<AddHospitalScreen> {
                             progressDialog.dismiss();
 
                             await NAlertDialog(
-                              title: Text(
-                                 "خطأ",
+                              title: Text("خطأ",
                                   style: TextStyle(
                                       fontSize: 14.sp,
                                       color: Color(0xff707070),
                                       fontWeight: FontWeight.w600)),
                               dialogStyle: DialogStyle(titleDivider: true),
-                              content: Text(
-                                 "خطأ غير معروف",
+                              content: Text("خطأ غير معروف",
                                   style: TextStyle(
                                       fontSize: 14.sp,
                                       color: Color(0xff707070),
@@ -282,15 +306,14 @@ class _AddHospitalScreenState extends State<AddHospitalScreen> {
                               ],
                             ).show(context);
                           }
-                        } 
+                        }
                       }),
                 ),
-                      
-                                  SizedBox(height: 30.sp,),
-        
-               
-             
-        
+
+                SizedBox(
+                  height: 30.sp,
+                ),
+
                 // AppInputTextField(controller: usernameC),
               ],
             ),
@@ -300,7 +323,7 @@ class _AddHospitalScreenState extends State<AddHospitalScreen> {
     );
   }
 
-   Future _multipleImgFromGallery() async {
+  Future _multipleImgFromGallery() async {
     // ProgressDialog pd = ProgressDialog(context: context);
     _images.clear();
 
@@ -315,8 +338,7 @@ class _AddHospitalScreenState extends State<AddHospitalScreen> {
                   fontSize: 14.sp,
                   color: Color(0xff707070),
                   fontWeight: FontWeight.w600)),
-          content: Text(
-              "خطأ",
+          content: Text("خطأ",
               style: TextStyle(
                   fontSize: 11.sp,
                   color: Color(0xff707070),
@@ -337,5 +359,4 @@ class _AddHospitalScreenState extends State<AddHospitalScreen> {
       }
     } else {}
   }
-
 }

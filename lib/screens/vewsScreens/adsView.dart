@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hakim_dash/consts/networkConst.dart';
+import 'package:hakim_dash/models/Ad.dart';
 import 'package:hakim_dash/providers/homeCareProvider.dart';
+import 'package:hakim_dash/screens/addScreens/addAd.dart';
 import 'package:hakim_dash/screens/addScreens/addHomeCare.dart';
 import 'package:hakim_dash/screens/updateScreens/UpdateHomeCareSc.dart';
 import 'package:provider/provider.dart';
@@ -8,37 +10,35 @@ import 'package:sizer/sizer.dart';
 
 import '../../consts/HakimColors.dart';
 import '../../models/HomeCare.dart';
+import '../../providers/adsProvider.dart';
 import '../widget/apppBar.dart';
 import '../widget/hakimLoadingIndicator.dart';
-
-class HomeCaresView extends StatefulWidget {
-  const HomeCaresView({super.key});
+class AdsView extends StatefulWidget {
+  const AdsView({super.key});
 
   @override
-  State<HomeCaresView> createState() => _HomeCaresViewState();
+  State<AdsView> createState() => _AdsViewState();
 }
 
-class _HomeCaresViewState extends State<HomeCaresView> {
-  @override
+class _AdsViewState extends State<AdsView> {
+ @override
   void initState() {
-    getHomeCares();
+    getAds();
     // TODO: implement initState
     super.initState();
   }
+ List<Ad>? ads;
 
-  List<HomeCare>? homeCares;
-
-  getHomeCares() async {
+  getAds() async {
     // String cate = Provider.of<ArticlePrvider>(context, listen: false).category;
 
-    String res = await Provider.of<HomeCareProvider>(context, listen: false)
-        .getHomeCare(1);
+    String res =
+        await Provider.of<AdsProvider>(context, listen: false).getAds(1);
     print(res);
 
     if (res == 'success') {
-      homeCares =
-          Provider.of<HomeCareProvider>(context, listen: false).homeCares;
-      print(homeCares);
+      // ignore: use_build_context_synchronously
+      ads = Provider.of<AdsProvider>(context, listen: false).ads;
       setState(() {});
     } else {
       print(res);
@@ -53,29 +53,29 @@ class _HomeCaresViewState extends State<HomeCaresView> {
         backgroundColor: Colors.greenAccent.shade400,
         onPressed: () => {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const AddHomeCare()))
+              MaterialPageRoute(builder: (context) => const AddAd()))
         },
         child: const Text('إضافة'),
       ),
-        appBar:ReusableWidgets.getAppBar('العلاج المنزلي', true,context)
+        appBar:ReusableWidgets.getAppBar('الأعلانات', true,context)
 ,
-      body: homeCares != null
+      body: ads != null
           ? SingleChildScrollView(
               child: Column(
                 children: [
                   SizedBox(height: 15.sp),
-                  Consumer<HomeCareProvider>(
-                      builder: (context, homeCareProv, _) {
-                    List<Widget> homeCareWidgets = [];
+                  Consumer<AdsProvider>(
+                      builder: (context, adProv, _) {
+                    List<Widget> adsWidgets = [];
 
-                    for (int i = 0; i < homeCareProv.homeCares!.length; i++) {
-                      String imgUrl = homeCareProv.homeCares![i].assets!.isEmpty
+                    for (int i = 0; i < adProv.ads!.length; i++) {
+                      String imgUrl = adProv.ads![i].assets!.isEmpty
                           ? ''
-                          : homeCareProv.homeCares![i].assets![0];
+                          : adProv.ads![i].assets![0];
 
-                          homeCareProv.homeCares![i].assets!.insert(0, imgUrl);
+                          adProv.ads![i].assets!.insert(0, imgUrl);
 
-                      homeCareWidgets.add(InkWell(
+                      adsWidgets.add(InkWell(
                         onTap: () {
 //  Navigator.push(
 //                               context,
@@ -84,13 +84,13 @@ class _HomeCaresViewState extends State<HomeCaresView> {
 //                                         homeCare: homeCares![i],
 //                                       )));
                         },
-                        child: HomeCareCard(
-                           homeCare: homeCareProv.homeCares![i] ,),
+                        child: AdsCard(
+                           ad: adProv.ads![i] ,),
                       ));
                     }
 
                     return Column(
-                      children: homeCareWidgets,
+                      children: adsWidgets,
                     );
                   })
                 ],
@@ -101,11 +101,11 @@ class _HomeCaresViewState extends State<HomeCaresView> {
   }
 }
 
-class HomeCareCard extends StatelessWidget {
-  final HomeCare homeCare;
-  const HomeCareCard({
+class AdsCard extends StatelessWidget {
+  final Ad ad;
+  const AdsCard({
     Key? key,
-    required this.homeCare,
+    required this.ad,
   }) : super(key: key);
 
   @override
@@ -113,30 +113,13 @@ class HomeCareCard extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(5.w, 0, 5.w, 15.sp),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                height: 20.6.h,
-                width: 34.w,
-                child: Image.network(
-                 NetworkConst().photoUrl+ homeCare.assets![0],
-                  fit: BoxFit.cover,
-                ),
-              ),
-              SizedBox(
-                width: 5.w,
-              ),
-              Container(
-                width: 50.w,
-                height: 20.6.h,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
+
+            Container(
                         height: 5.h,
                         child: Text(
-                          homeCare.name!,
+                          ad.title!,
                           overflow: TextOverflow.visible,
                           style: TextStyle(
                               fontSize: 14.sp,
@@ -150,41 +133,24 @@ class HomeCareCard extends StatelessWidget {
                       Container(
                         height: 8.h,
                         child: Text(
-                          homeCare.description!,
+                          ad.description!,
                           overflow: TextOverflow.fade,
                           style: TextStyle(
                               fontSize: 10.sp, color: const Color(0xff8E8B8B)),
                         ),
                       ),
-                      const Spacer(),
-                      Row(
-                        children: [
-                          Align(
-                              alignment: Alignment.topCenter,
-                              child: Icon(
-                                Icons.pin_drop,
-                                size: 15.sp,
-                                color: HakimColors.hakimPrimaryColor,
-                              )),
-                          SizedBox(
-                            width: 5.sp,
-                          ),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Text(
-                              homeCare.location!,
-                              style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: const Color(0xff8E8B8B)),
-                            ),
-                          ),
-                        ],
-                      )
-                    ]),
+
+              Center(
+                child: Container(
+                  width: 80.w,
+                  child: Image.network(
+                   NetworkConst().photoUrl+ ad.assets![0],
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
-            ],
-          ),
-          SizedBox(
+
+                SizedBox(
             height: 3.h,
           ),
           Row(
@@ -197,11 +163,11 @@ class HomeCareCard extends StatelessWidget {
                   width: 40.w,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  UpdateHomeCare(homeCare: homeCare)));
+                      // Navigator.push(
+                          // context,
+                          // MaterialPageRoute(
+                          //     builder: (context) =>
+                          //         UpdateHomeCare(homeCare: homeCare)));
                     },
                     child: Text(
                       "تعديل",
@@ -222,7 +188,7 @@ class HomeCareCard extends StatelessWidget {
                     onPressed: () async {
                       print('object');
 
-                      await showConformationDialog(context, homeCare.id!);
+                      // await showConformationDialog(context, homeCare.id!);
                     },
                     child: Text(
                       "مسح",
@@ -239,7 +205,8 @@ class HomeCareCard extends StatelessWidget {
           ),
           SizedBox(
             height: 5.h,
-          )
+          ),
+      
         ],
       ),
     );

@@ -11,6 +11,8 @@ class Hospital {
     Hospital({
         this.id,
         this.name,
+         this.position,
+
         this.assets,
         this.location,
         this.phone,
@@ -19,6 +21,7 @@ class Hospital {
         this.v,
         this.hospitalId,
     });
+    Position ?position;
 
     String? id;
     String? name;
@@ -33,6 +36,8 @@ class Hospital {
     factory Hospital.fromJson(Map<String, dynamic> json) => Hospital(
         id: json["_id"],
         name: json["name"],
+                position: Position.fromMap(json["position"]),
+
         assets: List<String>.from(json["assets"].map((x) => x)),
         location: json["location"],
         phone: List<String>.from(json["phone"].map((x) => x)),
@@ -42,4 +47,24 @@ class Hospital {
         hospitalId: json["id"],
     );
 
+}
+
+class Position {
+    Position({
+        required this.type,
+        required this.coordinates,
+    });
+
+    String type;
+    List<double> coordinates;
+
+    factory Position.fromMap(Map<String, dynamic> json) => Position(
+        type: json["type"],
+        coordinates: List<double>.from(json["coordinates"].map((x) => x?.toDouble())),
+    );
+
+    Map<String, dynamic> toMap() => {
+        "type": type,
+        "coordinates": List<dynamic>.from(coordinates.map((x) => x)),
+    };
 }

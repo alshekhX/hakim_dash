@@ -46,11 +46,10 @@ class Doctor {
                 rank: json["rank"] == null ?null:json["rank"],
 
         id: json["_id"] == null ? null : json["_id"],
-        username: json["username"] == null ? null : json["username"],
         email: json["email"] == null ? null : json["email"],
         phone: json["phone"] == null ? null : List<String>.from(json["phone"].map((x) => x)),
-        firstName: json["firstName"] == null ? null : json["firstName"],
-        lastName: json["LastName"] == null ? null : json["LastName"],
+        firstName: json["firstname"] == null ? null : json["firstname"],
+        lastName: json["lastname"] == null ? null : json["lastname"],
         description: json["description"] == null ? null : json["description"],
         photo: json["photo"] == null ? null : json["photo"],
         mainHospital: json["mainHospital"] == null ? null : json["mainHospital"],

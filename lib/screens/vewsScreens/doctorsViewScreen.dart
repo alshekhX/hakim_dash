@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hakim_dash/screens/addScreens/AddDoctorSc.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../consts/HakimColors.dart';
 import '../../models/Doctor.dart';
 import '../../providers/doctorsProvider.dart';
 import '../widget/DoctorCard.dart';
+import '../widget/apppBar.dart';
+import '../widget/hakimLoadingIndicator.dart';
 
 class DoctorsView extends StatefulWidget {
   const DoctorsView({super.key});
-
   @override
   State<DoctorsView> createState() => _DoctorsViewState();
 }
 
 class _DoctorsViewState extends State<DoctorsView> {
-   @override
+  @override
   void initState() {
     getDoctor();
     // TODO: implement initState
@@ -32,7 +30,7 @@ class _DoctorsViewState extends State<DoctorsView> {
 
     String res =
         await Provider.of<DoctorsProvider>(context, listen: false).getDoctor(1);
-              print(res);
+    print(res);
 
     if (res == 'success') {
       // ignore: use_build_context_synchronously
@@ -46,47 +44,36 @@ class _DoctorsViewState extends State<DoctorsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        
-        
-        
         backgroundColor: Colors.greenAccent.shade400,
         onPressed: () => {
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>AddDoctor()))
-      },
-      child: Text('إضافة'),),
-      appBar: AppBar(
-      
-          toolbarHeight: 50.sp,
-          backgroundColor: HakimColors.hakimPrimaryColor,
-          title: const Text('ألاطباء')
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => AddDoctor()))
+        },
+        child: Text('إضافة'),
+      ),
+      appBar: ReusableWidgets.getAppBar('الاطباء', true, context),
+      body: doctors != null
+          ? Column(children: [
+              SizedBox(height: 15.sp),
+              Consumer<DoctorsProvider>(builder: (context, doctorseProv, _) {
+                List<Widget> doctorsWidgets = [];
 
-          //  Text(
-          //   'الحكيم',
-          //   style: GoogleFonts.tajawal(
-          //       fontSize: 32.sp,
-          //       color: Colors.white,
-          //       fontWeight: FontWeight.bold),
-          // ),
-          ),
-      body:  doctors!=null?  Column(children: [
-        SizedBox(height: 15.sp),
-         Consumer(   builder: (context, doctorseProv, _) {
+                for (int i = 0; i < doctorseProv.doctors!.length; i++) {
+                  doctorsWidgets.add(DoctorCard(
+                      icon: Icons.access_time_rounded,
+                    doctor:doctorseProv.doctors![i] ,));
+                }
 
-
-
-                    List<Widget> doctorsWidgets = [];
-
-                    for (int i = 0; i < doctors!.length; i++) {
-                      doctorsWidgets.add(DoctorCard(name: doctors![i].firstName! + ' ' +doctors![i].lastName!, image: doctors![i].photo!, icon: Icons.access_time_rounded, rank: doctors![i].rank!, category: doctors![i].category!));
-                    }
-
-                    return Column(
-                      children: doctorsWidgets,
-                    );
-                  })]):Container(child: Center(child: CircularProgressIndicator()),),
+                return Column(
+                  children: doctorsWidgets,
+                );
+              })
+            ])
+          : Container(
+              child: HaLoadingIndicator(),
+            ),
     );
   }
 }

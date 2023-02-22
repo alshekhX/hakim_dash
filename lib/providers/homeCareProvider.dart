@@ -36,12 +36,7 @@ class HomeCareProvider with ChangeNotifier {
     }
   }
 
-
-
-
-
-
-   updateHomeCare(List<File> file, String token, HomeCare homeCare) async{
+  updateHomeCare(List<File> file, String token, HomeCare homeCare) async {
     final Dio dio = Dio(options);
     dio.options.headers["authorization"] = 'Bearer $token';
 
@@ -66,13 +61,15 @@ class HomeCareProvider with ChangeNotifier {
       "name": homeCare.name,
       'username': homeCare.phone,
       "assets": assets,
+      // "position":  { "type": "Point", "coordinates": [longitude, latitude] }
+      
       "location": homeCare.location,
       "phone": homeCare.phone,
       "description": homeCare.description,
     });
     try {
-      Response response = await dio
-          .put("/api/v1/homecare/${homeCare.id}", data: formData);
+      Response response =
+          await dio.put("/api/v1/homecare/${homeCare.id}", data: formData);
       print(response.data);
       if (response.statusCode == 200) {
         return 'success';
@@ -88,9 +85,6 @@ class HomeCareProvider with ChangeNotifier {
       return 'Slow internet, Please Try again';
     }
   }
-
-
-
 
   getHomeCare(int i) async {
     try {
@@ -149,6 +143,7 @@ class HomeCareProvider with ChangeNotifier {
       Response response = await dio.post("/api/v1/homecare", data: formData);
       print(response.data);
       if (response.statusCode == 201) {
+        getHomeCare(1);
         return 'success';
       } else if (response.statusCode! == 401) {
         return 'd';

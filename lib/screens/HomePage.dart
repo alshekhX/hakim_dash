@@ -6,6 +6,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:hakim_dash/screens/vewsScreens/adsView.dart';
 import 'package:hakim_dash/screens/vewsScreens/doctorsViewScreen.dart';
 import 'package:hakim_dash/screens/vewsScreens/homeCaresView.dart';
 import 'package:hakim_dash/screens/vewsScreens/hospitalsView.dart';
@@ -114,6 +115,24 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+
+                   SizedBox(
+                      height: 20.sp
+                    ),
+                    InkWell(
+                      onTap: (){
+                         Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AdsView()));
+                      },
+                      child: const HakimMainCard(
+                        title: ' الأعلانات',
+                        icon: Icons.ads_click,
+                      ),
+                    )
+                 ,
+            
             SizedBox(
               height: 20.sp,
             ),

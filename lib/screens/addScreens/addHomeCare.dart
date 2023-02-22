@@ -6,13 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:hakim_dash/consts/HakimColors.dart';
 import 'package:hakim_dash/models/HomeCare.dart';
 import 'package:hakim_dash/providers/homeCareProvider.dart';
-import 'package:hakim_dash/screens/widget/hakimAppBAr.dart';
+import 'package:hakim_dash/screens/vewsScreens/homeCaresView.dart';
+import 'package:hakim_dash/screens/widget/hakimLoadingIndicator.dart';
 import 'package:hakim_dash/screens/widget/textFormW.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+
+import '../widget/apppBar.dart';
 
 
 class AddHomeCare extends StatefulWidget {
@@ -37,8 +40,10 @@ class _AddHomeCareState extends State<AddHomeCare> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
-            appBar: ReusableWidgets.getAppBar('إضافة وحدة منزلية'),
+            appBar: ReusableWidgets.getAppBar('إضافة وحدة منزلية',false,context),
+            
 
       body: SafeArea(
         child: Form(
@@ -181,13 +186,10 @@ class _AddHomeCareState extends State<AddHomeCare> {
                         if (formGlobalKey.currentState!.validate()) {
                           formGlobalKey.currentState!.save();
                           CustomProgressDialog progressDialog =
-                              CustomProgressDialog(context, blur: 10);
+                              CustomProgressDialog(context, blur: 10,loadingWidget: HaLoadingIndicator());
 
-                          List<String> phones = [];
-                          phones.add(phoneC.text);
-                          if (phoneTwoC.text.isNotEmpty) {
-                            phones.add(phoneTwoC.text);
-                          }
+                                                 List<String> phones = phoneC.text.split(',').toList();
+
 
                           HomeCare homeCare = HomeCare(
                             name: nameC.text,
@@ -198,7 +200,8 @@ class _AddHomeCareState extends State<AddHomeCare> {
                           );
 
                           progressDialog.show();
-                          String token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MzliMGJhMzk3OGVhNWExMDIxNzhkM2EiLCJpYXQiOjE2NzExMDU2ODgsImV4cCI6MTcwMjIwOTY4OH0.-CVzFpdYqYTtzCXnQDRMQGiVyg2d--ae-AuSN5USHwo';
+                          String token =       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2M2UzYmNhOGIwOTJmYmNiNTAzY2ZiNjkiLCJpYXQiOjE2NzU4NjkzNTIsImV4cCI6MTcwNjk3MzM1Mn0.OcO8YS2DOFVDQxni14zUQibjDdNncAYOca5DAGcMx0U";
+
 
                           String res = await Provider.of<HomeCareProvider>(
                                   context,
@@ -206,7 +209,7 @@ class _AddHomeCareState extends State<AddHomeCare> {
                              postHomeCare (_images, token, homeCare);
 
                           if (res == 'success') {
-                            progressDialog!.dismiss();
+                            progressDialog.dismiss();
                             await NAlertDialog(
                               dialogStyle: DialogStyle(titleDivider: true),
                               title: Text('نجاح',
@@ -224,17 +227,16 @@ class _AddHomeCareState extends State<AddHomeCare> {
                                     child: Text("إغلاق"),
                                     onPressed: () {
                                       Navigator.pop(context);
-                                      // Navigator.pushAndRemoveUntil<dynamic>(
-                                      //   context,
-                                      //   MaterialPageRoute<dynamic>(
-                                      //     builder: (BuildContext context) =>
-                                      //         BottomNavBAr(
-                                      //       index: 3,
-                                      //     ),
-                                      //   ),
-                                      //   (route) =>
-                                      //       false, //if you want to disable back feature set to false
-                                      // );
+                                      Navigator.pushAndRemoveUntil<dynamic>(
+                                        context,
+                                        MaterialPageRoute<dynamic>(
+                                          builder: (BuildContext context) =>
+                                              HomeCaresView(
+                                          ),
+                                        ),
+                                        (route) =>
+                                            false, //if you want to disable back feature set to false
+                                      );
                                     }),
                               ],
                             ).show(context);

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../consts/networkConst.dart';
 
 import '../models/Hospital.dart';
@@ -9,11 +10,21 @@ import '../models/Hospital.dart';
 class HospitalProvider with ChangeNotifier {
   List<Hospital>? hospitals;
 
+  LatLng? _hospitalatLng;
+
+  LatLng? get hospitalatLng => _hospitalatLng;
+
+  determinePosition(LatLng? po) {
+    _hospitalatLng = po;
+    notifyListeners();
+  }
+
   // ignore: unnecessary_new
 
   final options = NetworkConst().options;
 
-  postHospital(List<File> file, String token, Hospital hospital) async {
+  postHospital(
+      List<File> file, String token, Hospital hospital, LatLng position) async {
     final Dio dio = Dio(options);
     dio.options.headers["authorization"] = 'Bearer $token';
 
@@ -33,17 +44,41 @@ class HospitalProvider with ChangeNotifier {
 
     //   return await MultipartFile.fromFile(e.path, filename: fileName);
     // }).toList();
+    print({
+      "name": hospital.name,
+      "position": {
+        "type": "Point",
+        "coordinates": [position.longitude, position.latitude]
+      },
+      "assets": assets,
+      "location": hospital.location,
+      "phone": hospital.phone,
+      "description": hospital.description,
+    });
 
     FormData formData = FormData.fromMap({
       "name": hospital.name,
-      'username': hospital.phone,
+      "position": {
+        "type": "Point",
+        "coordinates": [position.longitude.toDouble(), position.latitude.toDouble()],
+      },
       "assets": assets,
       "location": hospital.location,
       "phone": hospital.phone,
       "description": hospital.description,
     });
     try {
-      Response response = await dio.post("/api/v1/hospital", data: formData);
+      Response response = await dio.post("/api/v1/hospital", data: {
+      "name": hospital.name,
+      "position": {
+        "type": "Point",
+        "coordinates": [position.longitude.toDouble(), position.latitude.toDouble()],
+      },
+      // "assets": assets,
+      "location": hospital.location,
+      "phone": hospital.phone,
+      "description": hospital.description,
+    });
       print(response.data);
       if (response.statusCode == 201) {
         getHospitals(1);
@@ -83,6 +118,10 @@ class HospitalProvider with ChangeNotifier {
     // }).toList();
     print(hospital.id);
     FormData formData = FormData.fromMap({
+      //   "position": {
+      //   "type": 'Point',
+      //   "coordinates": [hospital.position!.coordinates[0], hospital.position!.coordinates[1],].toList()
+      // },
       "name": hospital.name,
       'username': hospital.phone,
       "assets": assets,
@@ -121,7 +160,6 @@ class HospitalProvider with ChangeNotifier {
       hospitals =
           map.map((i) => Hospital.fromJson(i)).toList().cast<Hospital>();
 
-      print(hospitals![0].name);
       notifyListeners();
       return 'success';
     } else {
